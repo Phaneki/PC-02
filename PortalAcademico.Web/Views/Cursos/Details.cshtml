@@ -1,0 +1,100 @@
+@model PortalAcademico.Web.Models.ViewModels.CursoDetalleViewModel
+
+@{
+    ViewData["Title"] = "Detalle del Curso";
+}
+
+<div class="container mt-4 mb-5">
+    
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-gradient bg-primary text-white p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-light text-primary mb-2 fs-6">@Model.Curso.Codigo</span>
+                        <h2 class="mb-0">@Model.Curso.Nombre</h2>
+                    </div>
+                    <div class="text-center">
+                        <div class="display-6 fw-bold">@Model.Curso.Creditos</div>
+                        <small class="text-uppercase tracking-wide">Créditos</small>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h4 class="border-bottom pb-2 mb-4 text-secondary">Información del Curso</h4>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light p-3 rounded-circle me-3 text-primary">
+                                    <i class="bi bi-clock-history fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Horario</h6>
+                                    <div class="fs-5">@Model.Curso.HorarioInicio.ToString(@"hh\:mm") - @Model.Curso.HorarioFin.ToString(@"hh\:mm")</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light p-3 rounded-circle me-3 text-primary">
+                                    <i class="bi bi-people-fill fs-4"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Cupos Disponibles</h6>
+                                    <div class="fs-5">
+                                        @(Model.Curso.CupoMaximo - Model.InscritosActuales) de @Model.Curso.CupoMaximo
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-top">
+                        @if (Model.YaInscrito)
+                        {
+                            <button class="btn btn-secondary btn-lg w-100 py-3 fw-bold fs-5 shadow-sm" disabled>
+                                <i class="bi bi-info-circle me-2"></i> YA ESTÁS INSCRITO EN ESTE CURSO
+                            </button>
+                        }
+                        else if (Model.EstaLleno)
+                        {
+                            <button class="btn btn-danger btn-lg w-100 py-3 fw-bold fs-5 shadow-sm" disabled>
+                                <i class="bi bi-x-circle me-2"></i> CURSO LLENO (SIN CUPOS)
+                            </button>
+                        }
+                        else
+                        {
+                            <form asp-controller="Matriculas" asp-action="Create" method="post">
+                                <input type="hidden" name="CursoId" value="@Model.Curso.Id" />
+                                <button type="submit" class="btn btn-success btn-lg w-100 py-3 fw-bold fs-5 shadow-sm">
+                                    <i class="bi bi-check-circle me-2"></i> INSCRIBIRSE A ESTE CURSO
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer bg-light p-3 text-center rounded-bottom">
+                    <a asp-action="Index" class="btn btn-link text-decoration-none text-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Volver al Catálogo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

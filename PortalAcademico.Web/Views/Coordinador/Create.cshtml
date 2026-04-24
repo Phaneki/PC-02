@@ -1,0 +1,16 @@
+@model PortalAcademico.Web.Models.ViewModels.CursoFormViewModel
+@{ ViewData["Title"] = "Crear Nuevo Curso"; }
+<h1>Crear Curso</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            <partial name="_FormPartial" />
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Guardar Curso</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
