@@ -1,8 +1,10 @@
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PortalAcademico.Web.Data;
+using PortalAcademico.Web.Models;
 using PortalAcademico.Web.Models.ViewModels;
 
 namespace PortalAcademico.Web.Controllers;
@@ -63,6 +65,27 @@ public class CursosController(ApplicationDbContext context) : Controller
             return NotFound();
         }
 
-        return View(curso);
+        int inscritos = await context.Matriculas.CountAsync(m => m.CursoId == id && m.Estado != EstadoMatricula.Cancelada);
+        bool estaLleno = inscritos >= curso.CupoMaximo;
+        
+        bool yaInscrito = false;
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId))
+            {
+                yaInscrito = await context.Matriculas.AnyAsync(m => m.CursoId == id && m.UsuarioId == userId && m.Estado != EstadoMatricula.Cancelada);
+            }
+        }
+
+        var viewModel = new CursoDetalleViewModel
+        {
+            Curso = curso,
+            EstaLleno = estaLleno,
+            YaInscrito = yaInscrito,
+            InscritosActuales = inscritos
+        };
+
+        return View(viewModel);
     }
 }
