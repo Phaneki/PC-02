@@ -1,0 +1,86 @@
+@model IEnumerable<PortalAcademico.Web.Models.Matricula>
+@{ ViewData["Title"] = "Gestión de Matrículas"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">Gestión de Matrículas</h1>
+        <p class="text-muted fs-5 mb-0">Curso: <strong>@ViewBag.CursoNombre</strong></p>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver a Cursos</a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Estudiante (Email)</th>
+                        <th>Fecha de Registro</th>
+                        <th>Estado Actual</th>
+                        <th class="text-center">Acciones Rápidas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        foreach (var matricula in Model)
+                        {
+                            <tr>
+                                <td class="align-middle">@matricula.Usuario?.Email</td>
+                                <td class="align-middle">@matricula.FechaRegistro.ToLocalTime().ToString("g")</td>
+                                <td class="align-middle">
+                                    @if (matricula.Estado == PortalAcademico.Web.Models.EstadoMatricula.Pendiente)
+                                    {
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                    }
+                                    else if (matricula.Estado == PortalAcademico.Web.Models.EstadoMatricula.Confirmada)
+                                    {
+                                        <span class="badge bg-success">Confirmada</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Cancelada</span>
+                                    }
+                                </td>
+                                <td class="align-middle text-center">
+                                    <form asp-action="CambiarEstadoMatricula" method="post" class="d-inline">
+                                        <input type="hidden" name="matriculaId" value="@matricula.Id" />
+                                        @if (matricula.Estado != PortalAcademico.Web.Models.EstadoMatricula.Confirmada)
+                                        {
+                                            <button type="submit" name="estado" value="Confirmada" class="btn btn-sm btn-success me-1" title="Confirmar Matrícula">
+                                                <i class="bi bi-check-lg"></i> Confirmar
+                                            </button>
+                                        }
+                                        @if (matricula.Estado != PortalAcademico.Web.Models.EstadoMatricula.Cancelada)
+                                        {
+                                            <button type="submit" name="estado" value="Cancelada" class="btn btn-sm btn-danger" title="Cancelar Matrícula">
+                                                <i class="bi bi-x-lg"></i> Cancelar
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">
+                                No hay estudiantes inscritos en este curso aún.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+@model PortalAcademico.Web.Models.ViewModels.CursoFormViewModel
+@{ ViewData["Title"] = "Editar Curso"; }
+<h1>Editar Curso</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" method="post">
+            <partial name="_FormPartial" />
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
