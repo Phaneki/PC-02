@@ -3,13 +3,14 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using PortalAcademico.Web.Data;
 using PortalAcademico.Web.Models;
 using PortalAcademico.Web.Models.ViewModels;
 
 namespace PortalAcademico.Web.Controllers;
 
-public class CursosController(ApplicationDbContext context) : Controller
+public class CursosController(ApplicationDbContext context, IDistributedCache cache) : Controller
 {
     public async Task<IActionResult> Index(FiltroCursoViewModel filtros)
     {
@@ -24,7 +25,26 @@ public class CursosController(ApplicationDbContext context) : Controller
             return View(viewModel);
         }
 
-        var query = context.Cursos.Where(c => c.Activo).AsQueryable();
+        string cacheKey = "cache_cursos_activos";
+        System.Collections.Generic.List<Curso> cursosActivos;
+
+        var cachedData = await cache.GetStringAsync(cacheKey);
+        if (!string.IsNullOrEmpty(cachedData))
+        {
+            cursosActivos = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.List<Curso>>(cachedData) ?? new System.Collections.Generic.List<Curso>();
+        }
+        else
+        {
+            cursosActivos = await context.Cursos.Where(c => c.Activo).ToListAsync();
+            var serialized = System.Text.Json.JsonSerializer.Serialize(cursosActivos);
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = System.TimeSpan.FromSeconds(60)
+            };
+            await cache.SetStringAsync(cacheKey, serialized, cacheOptions);
+        }
+
+        var query = cursosActivos.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filtros.Nombre))
         {
@@ -51,7 +71,7 @@ public class CursosController(ApplicationDbContext context) : Controller
             query = query.Where(c => c.HorarioFin <= filtros.HorarioFin.Value);
         }
 
-        viewModel.Cursos = await query.ToListAsync();
+        viewModel.Cursos = query.ToList();
 
         return View(viewModel);
     }
@@ -85,6 +105,10 @@ public class CursosController(ApplicationDbContext context) : Controller
             YaInscrito = yaInscrito,
             InscritosActuales = inscritos
         };
+
+        // Guardar en sesión
+        HttpContext.Session.SetString("UltimoCursoId", curso.Id.ToString());
+        HttpContext.Session.SetString("UltimoCursoNombre", curso.Nombre);
 
         return View(viewModel);
     }
