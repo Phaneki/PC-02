@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,6 +32,18 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                        @{
+                            var lastCourseId = HttpContextAccessor.HttpContext?.Session.GetString("UltimoCursoId");
+                            var lastCourseName = HttpContextAccessor.HttpContext?.Session.GetString("UltimoCursoNombre");
+                            if (!string.IsNullOrEmpty(lastCourseId) && !string.IsNullOrEmpty(lastCourseName))
+                            {
+                                <li class="nav-item ms-3">
+                                    <a class="nav-link text-white bg-primary rounded px-3 fw-bold shadow-sm" asp-controller="Cursos" asp-action="Details" asp-route-id="@lastCourseId">
+                                        <i class="bi bi-arrow-return-left"></i> Volver a @lastCourseName
+                                    </a>
+                                </li>
+                            }
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
