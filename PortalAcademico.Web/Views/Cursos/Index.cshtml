@@ -1,0 +1,96 @@
+@model PortalAcademico.Web.Models.ViewModels.CatalogoViewModel
+
+@{
+    ViewData["Title"] = "Catálogo de Cursos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Catálogo de Cursos</h1>
+</div>
+
+<div class="card mb-4 shadow-sm border-0">
+    <div class="card-body bg-light rounded">
+        <form method="get" asp-action="Index">
+            <h5 class="card-title mb-3 text-secondary"><i class="bi bi-funnel"></i> Filtros de Búsqueda</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label asp-for="Filtros.Nombre" class="form-label fw-bold"></label>
+                    <input asp-for="Filtros.Nombre" class="form-control" placeholder="Ej. Programación..." />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="Filtros.MinCreditos" class="form-label fw-bold"></label>
+                    <input asp-for="Filtros.MinCreditos" class="form-control" type="number" />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="Filtros.MaxCreditos" class="form-label fw-bold"></label>
+                    <input asp-for="Filtros.MaxCreditos" class="form-control" type="number" />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="Filtros.HorarioInicio" class="form-label fw-bold"></label>
+                    <input asp-for="Filtros.HorarioInicio" class="form-control" type="time" />
+                </div>
+                <div class="col-md-2">
+                    <label asp-for="Filtros.HorarioFin" class="form-label fw-bold"></label>
+                    <input asp-for="Filtros.HorarioFin" class="form-control" type="time" />
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                </div>
+            </div>
+            
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger mt-3 mb-0">
+                    <div asp-validation-summary="All" class="text-danger mb-0"></div>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @if (Model.Cursos.Any())
+    {
+        @foreach (var curso in Model.Cursos)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm hover-effect">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">@curso.Codigo</h5>
+                        <span class="badge bg-secondary">@curso.Creditos Cr.</span>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">@curso.Nombre</h5>
+                        <hr />
+                        <p class="card-text mb-2">
+                            <strong><i class="bi bi-clock text-info"></i> Horario:</strong><br />
+                            @curso.HorarioInicio.ToString(@"hh\:mm") - @curso.HorarioFin.ToString(@"hh\:mm")
+                        </p>
+                        <p class="card-text mb-0 text-muted small">
+                            <strong>Cupo Máximo:</strong> @curso.CupoMaximo estudiantes
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 text-center">
+                        <a asp-action="Details" asp-route-id="@curso.Id" class="btn btn-outline-primary px-4 rounded-pill">Ver Detalles</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else if (ViewData.ModelState.IsValid)
+    {
+        <div class="col-12">
+            <div class="alert alert-info shadow-sm text-center">
+                No se encontraron cursos que coincidan con los filtros de búsqueda proporcionados.
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        .hover-effect { transition: transform 0.2s ease-in-out; }
+        .hover-effect:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+    </style>
+}
